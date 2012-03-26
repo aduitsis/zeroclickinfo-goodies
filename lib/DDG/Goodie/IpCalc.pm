@@ -1,27 +1,11 @@
 package DDG::Goodie::IpCalc;
 
-use 5.14.0;
 use strict;
 use warnings;
 use Moo;
 use Data::Printer;
 use DDG::Block::Blockable::Triggers;
 use utf8::all;
-
-# doing use DDG::Goodie does:
-# use Moo;
-# use Data::Printer;
-# use utf8::all;
-# installs a zci_new method (returns a DDG::ZeroClickInfo object)
-# installs a zci method ( setter for parameters of ZeroClickInfo objects)
-# installs triggers_block_type, get_triggers, has_triggers, triggers methods, initializes an empty $triggers var
-# applies the DDG::Block::Blockable role to this package. Role has a readonly 'block' attribute
-# also, role DDG::Block::Blockable requires the existence of a get_triggers method
-# installs a handle method 
-#use DDG::Goodie;
-
-# this is the predicate that will activate the plugin . 
-#triggers start => 'chars'; 
 
 my $re = qr/(\d+)\.(\d+)\.(\d+)\.(\d+)\/(\d+)/;
 
@@ -40,16 +24,9 @@ sub has_triggers {
 	 $triggers ? 1 : 0;
 }
 
-#handle remainder => sub {
-#    return length $_ if $_;
-#    return;
-#};
-#it is also permissible to say handle( sub { ... } ) in which case it is
-#assumed that 'query_raw' type is used
-
 sub handle_request_matches {
 	my ( $self, $request, @parts ) = @_;
-	say p(@_);	
+	print p(@_)."\n";	
 
 	my @ret_str;
 	eval {
@@ -65,12 +42,6 @@ sub handle_request_matches {
 		return;
 	}
 }	
-
-
-#this makes all future invokations of zci_new include an is_cached=>1 pair. 
-#note also, for a module named DDG::Goodie::Foo::Bar, zci_new will 
-#automatically include an answer_type=>'Foo Bar' pair. 
-#zci is_cached => 1;
 
 
 # the IPv4Subnet package original source can be found at:
