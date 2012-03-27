@@ -2,47 +2,33 @@ package DDG::Goodie::IpCalc;
 
 use strict;
 use warnings;
-use Moo;
-use Data::Printer;
-use DDG::Block::Blockable::Triggers;
-use utf8::all;
+use DDG::Goodie;
 
 my $re = qr/(\d+)\.(\d+)\.(\d+)\.(\d+)\/(\d+)/;
 
-# create a new triggers object
-my $triggers = DDG::Block::Blockable::Triggers->new;
-# also see https://github.com/duckduckgo/duckduckgo/blob/master/lib/DDG/Block/Blockable/Triggers.pm 
-$triggers->add( query => $re );
+triggers query => $re;
 
-sub triggers_block_type {
-	return $triggers->block_type;
-}
-sub get_triggers {
-	return $triggers->get;
-}
-sub has_triggers {
-	 $triggers ? 1 : 0;
-}
+handle all => sub { 
+	
+	my ( $self, $request, $parts ) = @_;
 
-sub handle_request_matches {
-	my ( $self, $request, @parts ) = @_;
-	print p(@_)."\n";	
-
-	my @ret_str;
+	my $ret_str;
 	eval {
-		my $ip = IPv4Subnet->new( join('.',@parts[0..3]).'/'.$parts[4] );
-		@ret_str = ( 'start:'.$ip->get_start_ip.' stop:'.$ip->get_stop_ip , 'mask:'.$ip->get_mask.' wildcard:'.$ip->get_wildcard, 'net:'.$ip->get_start_ip.'/'.$ip->get_length_n.' length:'.$ip->get_length);
+		my $ip = IPv4Subnet->new( join('.',@{$parts}[0..3]).'/'.$parts->[4] );
+		$ret_str = 'start:' . $ip->get_start_ip . ' stop:' . $ip->get_stop_ip . "\n" .  
+			'mask:' . $ip->get_mask . ' wildcard:' . $ip->get_wildcard . "\n" . 
+			'net:' . $ip->get_start_ip . '/' . $ip->get_length_n . ' length:' . $ip->get_length ;
 	};
 	if(!$@) {
-		return DDG::ZeroClickInfo->new( answer_type => 'IpCalc' , answer => \@ret_str , is_cached => 1 );
+		return $ret_str;
 		
 	} 
 	else {
-		print STDERR $@;
 		return;
 	}
-}	
+};
 
+zci is_cached => 1;
 
 # the IPv4Subnet package original source can be found at:
 # https://github.com/aduitsis/IPv6Address
